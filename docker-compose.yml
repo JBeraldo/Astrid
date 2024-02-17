@@ -1,0 +1,36 @@
+services:
+    app:
+        container_name: astrid
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: php83
+        restart: unless-stopped
+        working_dir: /var/www/
+        environment:
+            PHP_OPCACHE_ENABLE: 1
+            PHP_OPCACHE_VALIDATE_TIMESTAMPS: 1
+            PHP_OPCACHE_MAX_ACCELERATED_FILES: 10000
+            PHP_OPCACHE_MEMORY_CONSUMPTION: 192
+            PHP_OPCACHE_MAX_WASTED_PERCENTAGE: 10
+        volumes:
+            - ./:/var/www:rw
+        networks:
+            - api-network
+    nginx:
+        container_name: nginx-astrid
+        image: nginx:alpine
+        restart: unless-stopped
+        ports:
+            - "80:80"
+#            - "443:443"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
+#            - ./ssl:/etc/nginx/ssl
+        networks:
+          - api-network
+networks:
+    api-network:
+        driver: bridge
+
