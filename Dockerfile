@@ -1,54 +1,42 @@
-# Default Dockerfile
-#
-# @link     https://www.hyperf.io
-# @document https://hyperf.wiki
-# @contact  group@hyperf.io
-# @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+FROM php:8.3-fpm
 
-FROM hyperf/hyperf:8.1-alpine-v3.18-swoole
-LABEL maintainer="Hyperf Developers <group@hyperf.io>" version="1.0" license="MIT" app.name="Hyperf"
+# Arguments
+ARG user=laravel_user
+ARG uid=1000
 
-##
-# ---------- env settings ----------
-##
-# --build-arg timezone=Asia/Shanghai
-ARG timezone
+ENV PHP_OPCACHE_ENABLE="0" \
+    PHP_OPCACHE_VALIDATE_TIMESTAMPS="0" \
+    PHP_OPCACHE_MAX_ACCELERATED_FILES="10000" \
+    PHP_OPCACHE_MEMORY_CONSUMPTION="192" \
+    PHP_OPCACHE_MAX_WASTED_PERCENTAGE="10"
 
-ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
-    APP_ENV=prod \
-    SCAN_CACHEABLE=(true)
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip
 
-# update
-RUN set -ex \
-    # show php version and extensions
-    && php -v \
-    && php -m \
-    && php --ri swoole \
-    #  ---------- some config ----------
-    && cd /etc/php* \
-    # - config PHP
-    && { \
-        echo "upload_max_filesize=128M"; \
-        echo "post_max_size=128M"; \
-        echo "memory_limit=1G"; \
-        echo "date.timezone=${TIMEZONE}"; \
-    } | tee conf.d/99_overrides.ini \
-    # - config timezone
-    && ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
-    && echo "${TIMEZONE}" > /etc/timezone \
-    # ---------- clear works ----------
-    && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
-    && echo -e "\033[42;37m Build Completed :).\033[0m\n"
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/www
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets opcache
 
-# Composer Cache
-# COPY ./composer.* /opt/www/
-# RUN composer install --no-dev --no-scripts
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY . /opt/www
-RUN composer install --no-dev -o && php bin/hyperf.php
+COPY docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-EXPOSE 9501
+# Create system user to run Composer and Artisan Commands
+RUN useradd -G www-data,root -u $uid -d /home/$user $user
+RUN mkdir -p /home/$user/.composer && \
+    chown -R $user:$user /home/$user
 
-ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]
+# Set working directory
+WORKDIR /var/www
+
+USER $user
