@@ -1,45 +1,24 @@
 <?php
 
-require_once '../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
-use App\Kernel;
-use Astrid\Controllers\ErrorController;
 use Astrid\Listeners\StringResponseListener;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
-use Symfony\Component\HttpKernel\EventListener\ErrorListener;
-use Symfony\Component\HttpKernel\EventListener\ResponseListener;
-use Symfony\Component\HttpKernel\EventListener\RouterListener;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Routing\Matcher\Dumper\CompiledUrlMatcherDumper;
 
+$routes = include __DIR__.'/../src/routes.php';
+$container = include __DIR__.'/../src/container.php';
 
 $request = Request::createFromGlobals();
-$requestStack = new RequestStack();
-$routes = include __DIR__.'/../src/routes.php';
 
-$context = new RequestContext();
-$matcher = new UrlMatcher($routes, $context);
+$container->register('listener.string_response', StringResponseListener::class);
+$container->getDefinition('dispatcher')
+    ->addMethodCall('addSubscriber', [new Reference('listener.string_response')])
+;
+$compiledRoutes = (new CompiledUrlMatcherDumper($routes))->getCompiledRoutes();
+$container->setParameter('routes', $compiledRoutes);
 
-$controllerResolver = new ControllerResolver();
-$argumentResolver = new ArgumentResolver();
-
-$listener = new ErrorListener(
-    ErrorController::class
-);
-
-$dispatcher = new EventDispatcher();
-$dispatcher->addSubscriber($listener);
-$dispatcher->addSubscriber(new RouterListener($matcher, $requestStack));
-$dispatcher->addSubscriber(new RouterListener($matcher, $requestStack));
-$dispatcher->addSubscriber(new ResponseListener('UTF-8'));
-$dispatcher->addSubscriber(new StringResponseListener());
-
-$kernel = new Kernel($dispatcher, $controllerResolver, $requestStack, $argumentResolver);
-
-$response = $kernel->handle($request);
+$response = $container->get('kernel')->handle($request);
 
 $response->send();

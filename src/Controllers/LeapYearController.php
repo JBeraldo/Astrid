@@ -2,8 +2,6 @@
 namespace App\Controllers;
 
 use App\Models\LeapYear;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class LeapYearController
 {
