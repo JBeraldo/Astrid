@@ -21,7 +21,7 @@ My final goal is a PSR-7 compliant framework with great interoperability and a D
 
 ## Roadmap
 
-- [ ] Compiled Routes
+- [x] Compiled Routes
 - [ ] Middlewares
 - [ ] Monolog Integration
 - [ ] Env Support
