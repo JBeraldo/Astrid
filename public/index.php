@@ -2,8 +2,7 @@
 
 require_once '../vendor/autoload.php';
 
-use App\App;
-use Astrid\Events\ResponseEvent;
+use App\Kernel;
 use Astrid\Listeners\ContentLengthListener;
 use Astrid\Listeners\GoogleListener;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +27,7 @@ $dispatcher->addListener('response', [new GoogleListener(), 'onResponse']);
 $controllerResolver = new ControllerResolver();
 $argumentResolver = new ArgumentResolver();
 
-$framework = new App($dispatcher,$matcher, $controllerResolver, $argumentResolver);
-$response = $framework->handle($request);
+$kernel = new Kernel($dispatcher,$matcher, $controllerResolver, $argumentResolver);
+$response = $kernel->handle($request);
 
 $response->send();

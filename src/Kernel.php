@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 
-readonly class App
+readonly class Kernel
 {
     public function __construct(
         private EventDispatcher    $dispatcher,
