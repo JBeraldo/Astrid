@@ -1,6 +1,7 @@
 <?php
 
 namespace Astrid\Listeners;
+
 use Astrid\Events\ResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

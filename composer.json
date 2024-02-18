@@ -12,6 +12,7 @@
         "symfony/http-foundation": "^7.0",
         "symfony/routing": "^7.0",
         "symfony/http-kernel": "^7.0",
-        "symfony/event-dispatcher": "^7.0"
+        "symfony/event-dispatcher": "^7.0",
+        "symfony/dependency-injection": "^7.0"
     }
 }
