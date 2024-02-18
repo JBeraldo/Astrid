@@ -1,6 +1,6 @@
 <?php
 
-use App\Kernel;
+use App\App\Kernel;
 use Symfony\Component\DependencyInjection;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher;
@@ -10,8 +10,18 @@ use Symfony\Component\Routing;
 
 $container = new DependencyInjection\ContainerBuilder();
 $container->register('context', Routing\RequestContext::class);
+
+$container->register('array_cache', \Symfony\Component\Cache\Adapter\PhpArrayAdapter::class)
+    ->setArguments([ __DIR__.'/../cache/route.cache', new \Symfony\Component\Cache\Adapter\FilesystemAdapter()]);
+
+$container->register('route_provider', \Astrid\Providers\RouteProvider::class)
+    ->setArguments([new Reference('array_cache')]);
+
+$container->setParameter('routes', $container->get('route_provider')->provide());
+
 $container->register('matcher', Routing\Matcher\CompiledUrlMatcher::class)
     ->setArguments(['%routes%', new Reference('context')]);
+
 $container->register('request_stack', HttpFoundation\RequestStack::class);
 $container->register('controller_resolver', HttpKernel\Controller\ControllerResolver::class);
 $container->register('argument_resolver', HttpKernel\Controller\ArgumentResolver::class);
@@ -23,7 +33,7 @@ $container->register('listener.response', HttpKernel\EventListener\ResponseListe
     ->setArguments(['UTF-8'])
 ;
 $container->register('listener.exception', HttpKernel\EventListener\ErrorListener::class)
-    ->setArguments([\Astrid\Controllers\ErrorController::class])
+    ->setArguments([[\Astrid\Controllers\ErrorController::class,'exception']])
 ;
 $container->register('dispatcher', EventDispatcher\EventDispatcher::class)
     ->addMethodCall('addSubscriber', [new Reference('listener.router')])
