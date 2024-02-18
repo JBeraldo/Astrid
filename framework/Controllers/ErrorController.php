@@ -12,7 +12,8 @@ class ErrorController
     {
         $msg = 'Something went wrong! ('.$exception->getMessage().')';
 
-        if($exception->getClass() === NotFoundHttpException::class){
+
+        if($exception->getStatusCode() === 404){
             RouteCache::clear();
         }
 
