@@ -9,6 +9,7 @@
 
     "require": {
         "symfony/http-foundation": "^7.0",
-        "symfony/routing": "^7.0"
+        "symfony/routing": "^7.0",
+        "symfony/http-kernel": "^7.0"
     }
 }
