@@ -14,8 +14,7 @@ $container->register('context', Routing\RequestContext::class);
 $container->register('array_cache', \Symfony\Component\Cache\Adapter\PhpArrayAdapter::class)
     ->setArguments([ __DIR__.'/../cache/route.cache', new \Symfony\Component\Cache\Adapter\FilesystemAdapter()]);
 
-$container->register('route_provider', \Astrid\Providers\RouteProvider::class)
-    ->setArguments([new Reference('array_cache')]);
+$container->register('route_provider', \Astrid\Providers\RouteProvider::class);
 
 $container->setParameter('routes', $container->get('route_provider')->provide());
 
