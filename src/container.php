@@ -14,12 +14,8 @@ $container->register('context', Routing\RequestContext::class);
 $container->register('array_cache', \Symfony\Component\Cache\Adapter\PhpArrayAdapter::class)
     ->setArguments([ __DIR__.'/../cache/route.cache', new \Symfony\Component\Cache\Adapter\FilesystemAdapter()]);
 
-$container->register('route_provider', \Astrid\Providers\RouteProvider::class);
-
-$container->setParameter('routes', $container->get('route_provider')->provide());
-
 $container->register('matcher', Routing\Matcher\CompiledUrlMatcher::class)
-    ->setArguments(['%routes%', new Reference('context')]);
+    ->setArguments([\Astrid\Facades\RouteCache::get(), new Reference('context')]);
 
 $container->register('request_stack', HttpFoundation\RequestStack::class);
 $container->register('controller_resolver', HttpKernel\Controller\ControllerResolver::class);

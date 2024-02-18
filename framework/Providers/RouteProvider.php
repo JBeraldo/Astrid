@@ -3,17 +3,22 @@
 namespace Astrid\Providers;
 
 use Astrid\Facades\RouteCache;
-use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Routing\Matcher\Dumper\CompiledUrlMatcherDumper;
-use Symfony\Contracts\Cache\ItemInterface;
 
-class RouteProvider extends BaseProvider
+class RouteProvider
 {
     public function __construct()
     {
     }
 
-    public function provide(): array
+    public static function generate(): array
+    {
+        $route_collection = include __DIR__.'/../../src/routes.php';
+
+        return (new CompiledUrlMatcherDumper($route_collection))->getCompiledRoutes();
+    }
+
+    public static function provide(): array
     {
         return RouteCache::get();
     }
