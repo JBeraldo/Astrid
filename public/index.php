@@ -8,6 +8,8 @@ use Astrid\Listeners\GoogleListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\HttpKernel\HttpCache\HttpCache;
+use Symfony\Component\HttpKernel\HttpCache\Store;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -28,6 +30,10 @@ $controllerResolver = new ControllerResolver();
 $argumentResolver = new ArgumentResolver();
 
 $kernel = new Kernel($dispatcher,$matcher, $controllerResolver, $argumentResolver);
+$kernel = new HttpCache(
+    $kernel,
+    new Store(__DIR__.'/../cache')
+);
 $response = $kernel->handle($request);
 
 $response->send();
