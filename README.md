@@ -1,6 +1,6 @@
 # 🐘 ASTRID
 
-A simple and lightweight PHP Framework 
+A simple PHP Framework 
 
 ## Motivation
     Why build a Web PHP framework in 2024?
@@ -16,7 +16,6 @@ My final goal is a PSR-7 compliant framework with great interoperability and a D
 
 - Symfony's HTTPKernel implementation
 - Solid base for custom framework development
-- Fast by simplicity
 - Great extensibility with Event Dispatching
 
 ## Roadmap
